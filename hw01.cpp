@@ -100,8 +100,11 @@ std::vector<int> path_nodes(const string & path) {
 
 void print_nodes(const std::vector<int> &v, const char& c) {
     // std::cout << "Path: ";
-    for (std::vector<int>::const_iterator i = v.begin(); i != v.end(); ++i) {
-        if(std::next(i) == v.end())
+    std::vector<int> temp = v;
+    sort(temp.begin(), temp.end());
+
+    for (std::vector<int>::const_iterator i = temp.begin(); i != temp.end(); ++i) {
+        if(std::next(i) == temp.end())
             std::cout << *i;
         else
             std::cout << *i << c;
