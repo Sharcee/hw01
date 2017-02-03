@@ -134,7 +134,7 @@ void printMap( const Map& m ) {
     }
     sort(v.begin(), v.end(), vec_sizecmp());
 
-    for (int i = 0; i < v.size(); ++i) {
+    for (uint i = 0; i < v.size(); ++i) {
         std::cout << v[i].first << " " << v[i].second.size() << " ";
         print_nodes( v[i].second, '|' );
         // std::cout << std::endl;
