@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -21,9 +22,13 @@ void printMap( const Map& m );
 
 struct vec_sizecmp {
     bool operator()(const pair<int, std::vector<int>> &lhs, const pair<int, std::vector<int>> &rhs) {
-        return lhs.second.size() > rhs.second.size();
+        if ( lhs.second.size() == rhs.second.size() )
+            return lhs.first < rhs.first;
+        else
+            return lhs.second.size() > rhs.second.size();
     }
 };
+
 
 int main() {
     std::string str = "";
@@ -33,25 +38,30 @@ int main() {
     Map m;
 
     while ( getline(cin, str) ) {
-        // std::cout << "**** Begin Tests ****" << "\n";
+        // std::cout << "********* Begin Tests *********" << "\n";
         // std::cout << str << "\n";       // Print test
+
         path = path_field(str);
         // std::cout << "PATH_FIELD: " << path << "\n\n";
+
         nodes = path_nodes(path);
         // print_nodes(nodes);
+
         for (auto iter = nodes.begin(); iter != nodes.end(); ++iter) {
             auto next = std::next(iter);
-            // std::cout << *iter << "\n";
-            if ( next != nodes.end() ) {
-                insert_node(m, *iter, *next);
+            if ( next == nodes.end() ) {
+                continue;
             } else {
-                auto prev = std::prev(iter);
-                insert_node(m, *iter, *prev);
+                insert_node(m, *iter, *next);
+                insert_node(m, *next, *iter);
             }
         }
-        printMap(m);
-        // std::cout << "**** End of Tests ****" << "\n" << endl;
+
+        // std::cout << "********* End of Tests *********" << "\n" << endl;
     }
+
+    // std::cout << "\n********* Printing Map *********" << "\n" << endl;
+    printMap(m);
 
     return 0;
 }
@@ -78,28 +88,13 @@ std::string path_field(std::string& x) {
 
 std::vector<int> path_nodes(const string & path) {
     std::vector<int> nodes;
-    std::string node = "";
-    std::string prev = "";
+    std::stringstream stream(path);
 
-    for (auto& c : path) {
-        if( c == ' ') {
-            if ( prev == node ) {
-                // std::cout << "Duplicate Node Detected" << "\n";
-                node.clear();
-                continue;
-            }
-            // std::cout << "Pushing NODE: " << node << "\n";
-            nodes.push_back(atoi(node.c_str()));
-            prev = node;
-            node.clear();
-            continue;
-        }
-        if ( c == '[') {
-            break;
-        }
-        node += c;
+    int n;
+    while ( stream >> n ) {
+        // std::cout << "Found node:" << n << "\n"; //Parsing through node
+        nodes.push_back(n);
     }
-
     return nodes;
 }
 
@@ -115,15 +110,17 @@ void print_nodes(const std::vector<int> &v, const char& c) {
 }
 
 void insert_node(Map& m, const int & k, const int & v) {
+    std::vector<int> temp;
+    // If node K is not in map, add it and add K+1 as a neighbor
     if ( m.find(k) == m.end() ) {
-        std::vector<int> temp;
         temp.push_back(v);
         m.emplace(make_pair(k, temp));
-        insert_node(m, v, k);
-    } else {
-        if ( std::find(m[k].begin(), m[k].end(), v ) == m[k].end() ) {
-            m[k].push_back(v);
-        }
+        temp.clear();
+    }
+
+    // Add node V as a neighbor to node K if NOT already listed
+    if ( std::find(m[k].begin(), m[k].end(), v) == m[k].end() ) {
+        m[k].push_back(v);
     }
 }
 
@@ -139,5 +136,4 @@ void printMap( const Map& m ) {
         print_nodes( v[i].second, '|' );
         // std::cout << std::endl;
     }
-
 }
